@@ -1,0 +1,92 @@
+#!/sbin/runscript
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/schleems/.schleems" ]; then
+	SCHLEEMSD_DEFAULT_DATADIR="/var/lib/schleems/.schleems"
+else
+	SCHLEEMSD_DEFAULT_DATADIR="/var/lib/schleemsd"
+fi
+
+SCHLEEMSD_CONFIGFILE=${SCHLEEMSD_CONFIGFILE:-/etc/schleems/schleems.conf}
+SCHLEEMSD_PIDDIR=${SCHLEEMSD_PIDDIR:-/var/run/schleemsd}
+SCHLEEMSD_PIDFILE=${SCHLEEMSD_PIDFILE:-${SCHLEEMSD_PIDDIR}/schleemsd.pid}
+SCHLEEMSD_DATADIR=${SCHLEEMSD_DATADIR:-${SCHLEEMSD_DEFAULT_DATADIR}}
+SCHLEEMSD_USER=${SCHLEEMSD_USER:-${SCHLEEMS_USER:-schleems}}
+SCHLEEMSD_GROUP=${SCHLEEMSD_GROUP:-schleems}
+SCHLEEMSD_BIN=${SCHLEEMSD_BIN:-/usr/bin/schleemsd}
+SCHLEEMSD_NICE=${SCHLEEMSD_NICE:-${NICELEVEL:-0}}
+SCHLEEMSD_OPTS="${SCHLEEMSD_OPTS:-${SCHLEEMS_OPTS}}"
+
+name="Schleems Core Daemon"
+description="Schleems cryptocurrency P2P network daemon"
+
+command="/usr/bin/schleemsd"
+command_args="-pid=\"${SCHLEEMSD_PIDFILE}\" \
+		-conf=\"${SCHLEEMSD_CONFIGFILE}\" \
+		-datadir=\"${SCHLEEMSD_DATADIR}\" \
+		-daemon \
+		${SCHLEEMSD_OPTS}"
+
+required_files="${SCHLEEMSD_CONFIGFILE}"
+start_stop_daemon_args="-u ${SCHLEEMSD_USER} \
+			-N ${SCHLEEMSD_NICE} -w 2000"
+pidfile="${SCHLEEMSD_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${SCHLEEMSD_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${SCHLEEMSD_USER}:${SCHLEEMSD_GROUP}" \
+	"${SCHLEEMSD_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${SCHLEEMSD_USER}:${SCHLEEMSD_GROUP}" \
+	"${SCHLEEMSD_PIDDIR}"
+
+	checkpath -f \
+	-o ${SCHLEEMSD_USER}:${SCHLEEMSD_GROUP} \
+	-m 0660 \
+	${SCHLEEMSD_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${SCHLEEMSD_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run schleemsd."
+		eerror "The setting must appear in ${SCHLEEMSD_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following "
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"Schleems Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}

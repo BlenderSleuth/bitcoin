@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_ADDRMAN_H
-#define BITCOIN_ADDRMAN_H
+#ifndef SCHLEEMS_ADDRMAN_H
+#define SCHLEEMS_ADDRMAN_H
 
 #include "netaddress.h"
 #include "protocol.h"
@@ -600,4 +600,4 @@ public:
 
 };
 
-#endif // BITCOIN_ADDRMAN_H
+#endif // SCHLEEMS_ADDRMAN_H

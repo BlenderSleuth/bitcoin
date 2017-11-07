@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_SYNC_H
-#define BITCOIN_SYNC_H
+#ifndef SCHLEEMS_SYNC_H
+#define SCHLEEMS_SYNC_H
 
 #include "threadsafety.h"
 
@@ -286,4 +286,4 @@ public:
     }
 };
 
-#endif // BITCOIN_SYNC_H
+#endif // SCHLEEMS_SYNC_H

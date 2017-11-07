@@ -1,0 +1,157 @@
+
+## <summary>policy for schleems</summary>
+
+
+########################################
+## <summary>
+##	Transition to schleems.
+## </summary>
+## <param name="domain">
+## <summary>
+##	Domain allowed to transition.
+## </summary>
+## </param>
+#
+interface(`schleems_domtrans',`
+	gen_require(`
+		type schleems_t, schleems_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	domtrans_pattern($1, schleems_exec_t, schleems_t)
+')
+
+
+########################################
+## <summary>
+##	Execute schleems server in the schleems domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`schleems_initrc_domtrans',`
+	gen_require(`
+		type schleems_initrc_exec_t;
+	')
+
+	init_labeled_script_domtrans($1, schleems_initrc_exec_t)
+')
+
+
+########################################
+## <summary>
+##	Search schleems lib directories.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`schleems_search_lib',`
+	gen_require(`
+		type schleems_var_lib_t;
+	')
+
+	allow $1 schleems_var_lib_t:dir search_dir_perms;
+	files_search_var_lib($1)
+')
+
+########################################
+## <summary>
+##	Read schleems lib files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`schleems_read_lib_files',`
+	gen_require(`
+		type schleems_var_lib_t;
+	')
+
+	files_search_var_lib($1)
+	read_files_pattern($1, schleems_var_lib_t, schleems_var_lib_t)
+')
+
+########################################
+## <summary>
+##	Manage schleems lib files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`schleems_manage_lib_files',`
+	gen_require(`
+		type schleems_var_lib_t;
+	')
+
+	files_search_var_lib($1)
+	manage_files_pattern($1, schleems_var_lib_t, schleems_var_lib_t)
+')
+
+########################################
+## <summary>
+##	Manage schleems lib directories.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`schleems_manage_lib_dirs',`
+	gen_require(`
+		type schleems_var_lib_t;
+	')
+
+	files_search_var_lib($1)
+	manage_dirs_pattern($1, schleems_var_lib_t, schleems_var_lib_t)
+')
+
+
+########################################
+## <summary>
+##	All of the rules required to administrate
+##	a schleems environment
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	Role allowed access.
+##	</summary>
+## </param>
+## <rolecap/>
+#
+interface(`schleems_admin',`
+	gen_require(`
+		type schleems_t;
+		type schleems_initrc_exec_t;
+		type schleems_var_lib_t;
+	')
+
+	allow $1 schleems_t:process { ptrace signal_perms };
+	ps_process_pattern($1, schleems_t)
+
+	schleems_initrc_domtrans($1)
+	domain_system_change_exemption($1)
+	role_transition $2 schleems_initrc_exec_t system_r;
+	allow $2 system_r;
+
+	files_search_var_lib($1)
+	admin_pattern($1, schleems_var_lib_t)
+
+')
+

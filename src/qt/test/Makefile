@@ -1,6 +1,6 @@
 all:
-	$(MAKE) -C ../../ test_bitcoin_qt
+	$(MAKE) -C ../../ test_schleems_qt
 clean:
-	$(MAKE) -C ../../ test_bitcoin_qt_clean
+	$(MAKE) -C ../../ test_schleems_qt_clean
 check:
-	$(MAKE) -C ../../ test_bitcoin_qt_check
+	$(MAKE) -C ../../ test_schleems_qt_check

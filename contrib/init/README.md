@@ -1,11 +1,11 @@
 Sample configuration files for:
 ```
-SystemD: bitcoind.service
-Upstart: bitcoind.conf
-OpenRC:  bitcoind.openrc
-         bitcoind.openrcconf
-CentOS:  bitcoind.init
-OS X:    org.bitcoin.bitcoind.plist
+SystemD: schleemsd.service
+Upstart: schleemsd.conf
+OpenRC:  schleemsd.openrc
+         schleemsd.openrcconf
+CentOS:  schleemsd.init
+OS X:    org.schleems.schleemsd.plist
 ```
 have been made available to assist packagers in creating node packages here.
 

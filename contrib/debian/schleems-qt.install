@@ -1,0 +1,6 @@
+usr/local/bin/schleems-qt usr/bin
+share/pixmaps/schleems32.xpm usr/share/pixmaps
+share/pixmaps/schleems16.xpm usr/share/pixmaps
+share/pixmaps/schleems128.png usr/share/pixmaps
+debian/schleems-qt.desktop usr/share/applications
+debian/schleems-qt.protocol usr/share/kde4/services/

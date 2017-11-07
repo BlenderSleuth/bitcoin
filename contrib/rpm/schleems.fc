@@ -1,0 +1,8 @@
+/usr/bin/schleems-cli		--	gen_context(system_u:object_r:schleems_exec_t,s0)
+/usr/sbin/schleemsd		--	gen_context(system_u:object_r:schleems_exec_t,s0)
+/usr/lib(64)?/schleems/schleemsd		--	gen_context(system_u:object_r:schleems_exec_t,s0)
+
+/etc/schleems(/.*)?		gen_context(system_u:object_r:schleems_conf_t,s0)
+/var/lib/schleems(/.*)?		gen_context(system_u:object_r:schleems_var_lib_t,s0)
+
+(/var)?/run/schleemsd(/.*)?   gen_context(system_u:object_r:schleems_var_run_t,s0)

@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_MEMUSAGE_H
-#define BITCOIN_MEMUSAGE_H
+#ifndef SCHLEEMS_MEMUSAGE_H
+#define SCHLEEMS_MEMUSAGE_H
 
 #include "indirectmap.h"
 
@@ -166,4 +166,4 @@ static inline size_t DynamicUsage(const std::unordered_map<X, Y, Z>& m)
 
 }
 
-#endif // BITCOIN_MEMUSAGE_H
+#endif // SCHLEEMS_MEMUSAGE_H

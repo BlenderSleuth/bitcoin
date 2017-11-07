@@ -1,0 +1,22 @@
+[Unit]
+Description=Schleems's distributed currency daemon
+After=network.target
+
+[Service]
+User=schleems
+Group=schleems
+
+Type=forking
+PIDFile=/var/lib/schleemsd/schleemsd.pid
+ExecStart=/usr/bin/schleemsd -daemon -pid=/var/lib/schleemsd/schleemsd.pid \
+-conf=/etc/schleems/schleems.conf -datadir=/var/lib/schleemsd -disablewallet
+
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=2s
+StartLimitInterval=120s
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target

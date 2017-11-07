@@ -1,0 +1,13 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Schleems Core
+Comment=Connect to the Schleems P2P Network
+Comment[de]=Verbinde mit dem Schleems peer-to-peer Netzwerk
+Comment[fr]=Schleems, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=Schleems, eşten eşe kriptografik sanal para birimi
+Exec=schleems-qt %u
+Terminal=false
+Type=Application
+Icon=schleems128
+MimeType=x-scheme-handler/schleems;
+Categories=Office;Finance;

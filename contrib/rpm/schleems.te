@@ -1,0 +1,81 @@
+policy_module(schleems, 1.100.1)
+
+########################################
+#
+# Declarations
+#
+
+type schleems_t;
+type schleems_exec_t;
+init_daemon_domain(schleems_t, schleems_exec_t)
+
+permissive schleems_t;
+
+type schleems_initrc_exec_t;
+init_script_file(schleems_initrc_exec_t)
+
+type schleems_conf_t;
+files_type(schleems_conf_t)
+
+type schleems_var_lib_t;
+files_type(schleems_var_lib_t)
+
+type schleems_var_run_t;
+files_type(schleems_var_run_t)
+
+type schleems_port_t;
+corenet_port(schleems_port_t)
+
+########################################
+#
+# schleems local policy
+#
+allow schleems_t self:process { fork };
+
+allow schleems_t self:fifo_file rw_fifo_file_perms;
+allow schleems_t self:unix_stream_socket create_stream_socket_perms;
+
+manage_dirs_pattern(schleems_t, schleems_conf_t, schleems_conf_t)
+manage_files_pattern(schleems_t, schleems_conf_t, schleems_conf_t)
+
+manage_dirs_pattern(schleems_t, schleems_var_lib_t, schleems_var_lib_t)
+manage_files_pattern(schleems_t, schleems_var_lib_t, schleems_var_lib_t)
+files_var_lib_filetrans(schleems_t, schleems_var_lib_t, { dir file })
+
+manage_dirs_pattern(schleems_t, schleems_var_run_t, schleems_var_run_t)
+manage_files_pattern(schleems_t, schleems_var_run_t, schleems_var_run_t)
+
+sysnet_dns_name_resolve(schleems_t)
+corenet_all_recvfrom_unlabeled(schleems_t)
+
+allow schleems_t self:tcp_socket create_stream_socket_perms;
+corenet_tcp_sendrecv_generic_if(schleems_t)
+corenet_tcp_sendrecv_generic_node(schleems_t)
+corenet_tcp_sendrecv_all_ports(schleems_t)
+corenet_tcp_bind_generic_node(schleems_t)
+
+gen_require(`
+    type schleems_port_t;
+')
+allow schleems_t schleems_port_t:tcp_socket name_bind;
+
+gen_require(`
+    type schleems_port_t;
+')
+allow schleems_t schleems_port_t:tcp_socket name_connect;
+
+domain_use_interactive_fds(schleems_t)
+
+files_read_etc_files(schleems_t)
+
+miscfiles_read_localization(schleems_t)
+
+sysnet_dns_name_resolve(schleems_t)
+
+allow schleems_t schleems_exec_t:file execute_no_trans;
+allow schleems_t self:process setsched;
+corecmd_exec_ls(schleems_t)
+corenet_tcp_connect_http_port(schleems_t)
+dev_read_urand(schleems_t)
+fs_getattr_xattr_fs(schleems_t)
+kernel_read_system_state(schleems_t)
