@@ -1,10 +1,6 @@
 Schleems Core integration/staging tree
 =====================================
 
-[![Build Status](https://travis-ci.org/schleems/schleems.svg?branch=master)](https://travis-ci.org/schleems/schleems)
-
-https://schleemscore.org
-
 What is Schleems?
 ----------------
 
