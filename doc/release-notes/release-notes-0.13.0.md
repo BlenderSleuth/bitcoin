@@ -677,7 +677,7 @@ git merge commit are mentioned.
 - #7951 `5c7df70` Test_framework: Properly print exception (MarcoFalke)
 - #8070 `7771aa5` Remove non-determinism which is breaking net_tests #8069 (EthanHeilman)
 - #8309 `bb2646a` Add wallet-hd test (MarcoFalke)
-- #8444 `cd0910b` Fix p2p-feefilter.py for changed tx relay behavior (sdaftuar)
+- #4578 `cd0910b` Fix p2p-feefilter.py for changed tx relay behavior (sdaftuar)
 
 ### Mining
 

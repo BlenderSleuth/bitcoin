@@ -6,6 +6,8 @@
 #include "chainparams.h"
 #include "consensus/merkle.h"
 
+#include "arith_uint256.h"
+
 #include "tinyformat.h"
 #include "util.h"
 #include "utilstrencodings.h"
@@ -48,8 +50,8 @@ static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesi
  */
 static CBlock CreateGenesisBlock(uint32_t nTime, uint32_t nNonce, uint32_t nBits, int32_t nVersion, const CAmount& genesisReward)
 {
-    const char* pszTimestamp = "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks";
-    const CScript genesisOutputScript = CScript() << ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f") << OP_CHECKSIG;
+    const char* pszTimestamp = "The Age 10/Nov/2017 A brand-new Star Wars trilogy is in the works"; //The Times 03/Jan/2009 Chancellor on brink of second bailout for banks
+    const CScript genesisOutputScript = CScript() << ParseHex("045c0dded869dc5d309dfc21f57b54604595c43f276bfb84aa35f63956b6045226acd0b0b791eb82d6b475b8bccaca707222f8fb05d3827fa3a55489") << OP_CHECKSIG;
     return CreateGenesisBlock(pszTimestamp, genesisOutputScript, nTime, nNonce, nBits, nVersion, genesisReward);
 }
 
@@ -111,35 +113,72 @@ public:
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
          * a large 32-bit integer with any alignment.
          */
-        pchMessageStart[0] = 0xf9;
-        pchMessageStart[1] = 0xbe;
-        pchMessageStart[2] = 0xb4;
-        pchMessageStart[3] = 0xd9;
+        pchMessageStart[0] = 0xd5;
+        pchMessageStart[1] = 0x42;
+        pchMessageStart[2] = 0x24;
+        pchMessageStart[3] = 0xef;
         nDefaultPort = 4579;
         nPruneAfterHeight = 100000;
 
-        genesis = CreateGenesisBlock(1231006505, 2083236893, 0x1d00ffff, 1, 50 * COIN);
+        // Create a genesis block:       time,     nonce       bits    ver   amount
+        genesis = CreateGenesisBlock(1511317750, 632737610, 0x1d00ffff, 1, 50 * COIN);
+
+        // Genesis mining code:
+        bool mineGenesis = false;
+        uint256 hashGenesisBlock = uint256S("0x0001");
+        if (mineGenesis && genesis.GetHash() != hashGenesisBlock) {
+            printf("Data dir: %s\n", GetDataDir().c_str());
+
+            LogPrintf("recalculating params for mainnet.\n");
+            printf("recalculating params for mainnet.\n");
+
+            LogPrintf("old mainnet genesis nonce: %s\n", std::to_string(genesis.nNonce).c_str());
+            printf("old mainnet genesis nonce: %s\n", std::to_string(genesis.nNonce).c_str());
+
+            LogPrintf("old mainnet genesis hash:  %s\n", hashGenesisBlock.ToString().c_str());
+            printf("old mainnet genesis hash:  %s\n", hashGenesisBlock.ToString().c_str());
+
+            arith_uint256 powLimit = UintToArith256(consensus.powLimit);
+
+            // Deliberately empty for loop finds nonce value
+            #pragma omp parallel for
+            for(genesis.nNonce = 0; UintToArith256(genesis.GetHash()) > powLimit; genesis.nNonce++) { }
+
+            LogPrintf("new mainnet genesis merkle root: %s\n", genesis.hashMerkleRoot.ToString().c_str());
+            printf("new mainnet genesis merkle root: %s\n", genesis.hashMerkleRoot.ToString().c_str());
+
+            LogPrintf("new mainnet genesis nonce: %s\n", std::to_string(genesis.nNonce));
+            printf("new mainnet genesis nonce: %s\n", std::to_string(genesis.nNonce).c_str());
+
+            LogPrintf("new mainnet genesis hash: %s\n", genesis.GetHash().ToString().c_str());
+            printf("new mainnet genesis hash: %s\n", genesis.GetHash().ToString().c_str());
+        }
+
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"));
-        assert(genesis.hashMerkleRoot == uint256S("0x4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"));
+        assert(consensus.hashGenesisBlock == uint256S("0x00000000b1937dfc2c83f13e428e486ace48dde6d0d5eef264a6020f6c5a1eaf"));
+        assert(genesis.hashMerkleRoot == uint256S("0xa712a074953f0c6e2be33382f1965a0fb903beefac2fa327a5143e48593064df"));
 
         // Note that of those with the service bits flag, most only support a subset of possible options
-        vSeeds.emplace_back("seed.schleems.sipa.be", true); // Pieter Wuille, only supports x1, x5, x9, and xd
-        vSeeds.emplace_back("dnsseed.bluematt.me", true); // Matt Corallo, only supports x9
-        vSeeds.emplace_back("dnsseed.schleems.dashjr.org", false); // Luke Dashjr
-        vSeeds.emplace_back("seed.schleemsstats.com", true); // Christian Decker, supports x1 - xf
-        vSeeds.emplace_back("seed.schleems.jonasschnelli.ch", true); // Jonas Schnelli, only supports x1, x5, x9, and xd
-        vSeeds.emplace_back("seed.SLM.petertodd.org", true); // Peter Todd, only supports x1, x5, x9, and xd
+        //vSeeds.emplace_back("seed.schleems.sipa.be", true); // Pieter Wuille, only supports x1, x5, x9, and xd
+        //vSeeds.emplace_back("dnsseed.bluematt.me", true); // Matt Corallo, only supports x9
+        //vSeeds.emplace_back("dnsseed.schleems.dashjr.org", false); // Luke Dashjr
+        //vSeeds.emplace_back("seed.schleemsstats.com", true); // Christian Decker, supports x1 - xf
+        //vSeeds.emplace_back("seed.schleems.jonasschnelli.ch", true); // Jonas Schnelli, only supports x1, x5, x9, and xd
+        //vSeeds.emplace_back("seed.SLM.petertodd.org", true); // Peter Todd, only supports x1, x5, x9, and xd
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,0);
-        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,5);
-        base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,128);
-        base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x88, 0xB2, 0x1E};
-        base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x88, 0xAD, 0xE4};
+        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,17);
+        base58Prefixes[SECRET_KEY]     = std::vector<unsigned char>(1,126);
+        base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x88, 0xFB, 0xD4};
+        base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x88, 0x0E, 0x62};
 
         bech32_hrp = "bc";
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_main, pnSeed6_main + ARRAYLEN(pnSeed6_main));
+
+        // No needed bitcoin seeds
+        vFixedSeeds.clear();
+        vSeeds.clear();
 
         fDefaultConsistencyChecks = false;
         fRequireStandard = true;
@@ -148,13 +187,13 @@ public:
         checkpointData = (CCheckpointData) {
             {
                 // Genesis block checkpoint
-                {0, uint256S("0x0001")},
+                {0, uint256S("0x00000000b1937dfc2c83f13e428e486ace48dde6d0d5eef264a6020f6c5a1eaf")},
             }
         };
 
         chainTxData = ChainTxData{
             // Data as of block 000000000000000000d97e53664d17967bd4ee50b23abb92e54a34eb222d15ae (height 478913).
-            1510053537, // * UNIX timestamp of last known number of transactions
+            1511317750, // * UNIX timestamp of last known number of transactions
             0,  // * total number of transactions between genesis and that timestamp
                         //   (the tx=... number in the SetBestChain debug.log lines)
             3.1         // * estimated number of transactions per second after that timestamp
@@ -201,17 +240,49 @@ public:
         // By default assume that the signatures in ancestors of this block are valid.
         consensus.defaultAssumeValid = uint256S("0x0000000002e9e7b00e1f6dc5123a04aad68dd0f0968d8c7aa45f6640795c37b1"); //1135275
 
-        pchMessageStart[0] = 0x0b;
-        pchMessageStart[1] = 0x11;
-        pchMessageStart[2] = 0x09;
-        pchMessageStart[3] = 0x07;
+        pchMessageStart[0] = 0xf4;
+        pchMessageStart[1] = 0xe3;
+        pchMessageStart[2] = 0x6b;
+        pchMessageStart[3] = 0x94;
         nDefaultPort = 14579;
         nPruneAfterHeight = 1000;
 
-        genesis = CreateGenesisBlock(1296688602, 414098458, 0x1d00ffff, 1, 50 * COIN);
+        genesis = CreateGenesisBlock(1511317750, 632737610, 0x1d00ffff, 1, 50 * COIN);
+
+        // Genesis mining code:
+        bool mineGenesis = false;
+        uint256 hashGenesisBlock = uint256S("0x0001");
+        if (mineGenesis && genesis.GetHash() != hashGenesisBlock) {
+            printf("Data dir: %s\n", GetDataDir().c_str());
+
+            LogPrintf("recalculating params for testnet.\n");
+            printf("recalculating params for testnet.\n");
+
+            LogPrintf("old testnet genesis nonce: %s\n", std::to_string(genesis.nNonce).c_str());
+            printf("old testnet genesis nonce: %s\n", std::to_string(genesis.nNonce).c_str());
+
+            LogPrintf("old testnet genesis hash:  %s\n", hashGenesisBlock.ToString().c_str());
+            printf("old testnet genesis hash:  %s\n", hashGenesisBlock.ToString().c_str());
+
+            arith_uint256 powLimit = UintToArith256(consensus.powLimit);
+
+            // Deliberately empty for loop finds nonce value
+            #pragma omp parallel for
+            for(genesis.nNonce = 0; UintToArith256(genesis.GetHash()) > powLimit; genesis.nNonce++) { }
+
+            LogPrintf("new testnet genesis merkle root: %s\n", genesis.hashMerkleRoot.ToString().c_str());
+            printf("new testnet genesis merkle root: %s\n", genesis.hashMerkleRoot.ToString().c_str());
+
+            LogPrintf("new testnet genesis nonce: %s\n", std::to_string(genesis.nNonce));
+            printf("new testnet genesis nonce: %s\n", std::to_string(genesis.nNonce).c_str());
+
+            LogPrintf("new testnet genesis hash: %s\n", genesis.GetHash().ToString().c_str());
+            printf("new testnet genesis hash: %s\n", genesis.GetHash().ToString().c_str());
+        }
+
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943"));
-        assert(genesis.hashMerkleRoot == uint256S("0x4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"));
+        assert(consensus.hashGenesisBlock == uint256S("0x00000000b1937dfc2c83f13e428e486ace48dde6d0d5eef264a6020f6c5a1eaf"));
+        assert(genesis.hashMerkleRoot == uint256S("0xa712a074953f0c6e2be33382f1965a0fb903beefac2fa327a5143e48593064df"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
@@ -238,13 +309,13 @@ public:
         checkpointData = (CCheckpointData) {
             {
               // Genesis block checkpoint
-              {0, uint256S("0x0001")},
+              {0, uint256S("0x00000000b1937dfc2c83f13e428e486ace48dde6d0d5eef264a6020f6c5a1eaf")},
             }
         };
 
-        chainTxData = ChainTxData{
+        chainTxData = ChainTxData {
             // Data as of block 00000000000001c200b9790dc637d3bb141fe77d155b966ed775b17e109f7c6c (height 1156179)
-            1510053537,
+            1511317750,
             0,
             0.15
         };
@@ -287,14 +358,45 @@ public:
         // By default assume that the signatures in ancestors of this block are valid.
         consensus.defaultAssumeValid = uint256S("0x00");
 
-        pchMessageStart[0] = 0xfa;
-        pchMessageStart[1] = 0xbf;
-        pchMessageStart[2] = 0xb5;
-        pchMessageStart[3] = 0xda;
-        nDefaultPort = 18444;
+        pchMessageStart[0] = 0x65;
+        pchMessageStart[1] = 0xbc;
+        pchMessageStart[2] = 0xfb;
+        pchMessageStart[3] = 0x3a;
+        nDefaultPort = 14578;
         nPruneAfterHeight = 1000;
 
-        genesis = CreateGenesisBlock(1296688602, 2, 0x207fffff, 1, 50 * COIN);
+        genesis = CreateGenesisBlock(1511317750, 0, 0x207fffff, 1, 50 * COIN);
+
+        bool mineGenesis = false;
+        uint256 hashGenesisBlock = uint256S("0x0001");
+        if (mineGenesis && genesis.GetHash() != hashGenesisBlock) {
+            printf("Data dir: %s\n", GetDataDir().c_str());
+
+            LogPrintf("recalculating params for regtest.\n");
+            printf("recalculating params for regtest.\n");
+
+            LogPrintf("old regtest genesis nonce: %s\n", std::to_string(genesis.nNonce).c_str());
+            printf("old regtest genesis nonce: %s\n", std::to_string(genesis.nNonce).c_str());
+
+            LogPrintf("old regtest genesis hash:  %s\n", hashGenesisBlock.ToString().c_str());
+            printf("old regtest genesis hash:  %s\n", hashGenesisBlock.ToString().c_str());
+
+            arith_uint256 powLimit = UintToArith256(consensus.powLimit);
+
+            // Deliberately empty for loop finds nonce value
+            #pragma omp parallel for
+            for(genesis.nNonce = 0; UintToArith256(genesis.GetHash()) > powLimit; genesis.nNonce++) { }
+
+            LogPrintf("new regtest genesis merkle root: %s\n", genesis.hashMerkleRoot.ToString().c_str());
+            printf("new regtest genesis merkle root: %s\n", genesis.hashMerkleRoot.ToString().c_str());
+
+            LogPrintf("new regtest genesis nonce: %s\n", std::to_string(genesis.nNonce));
+            printf("new regtest genesis nonce: %s\n", std::to_string(genesis.nNonce).c_str());
+
+            LogPrintf("new regtest genesis hash: %s\n", genesis.GetHash().ToString().c_str());
+            printf("new regtest genesis hash: %s\n", genesis.GetHash().ToString().c_str());
+        }
+
         consensus.hashGenesisBlock = genesis.GetHash();
         assert(consensus.hashGenesisBlock == uint256S("0x0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206"));
         assert(genesis.hashMerkleRoot == uint256S("0x4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"));
