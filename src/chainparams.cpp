@@ -162,7 +162,7 @@ public:
         //vSeeds.emplace_back("seed.schleems.sipa.be", true); // Pieter Wuille, only supports x1, x5, x9, and xd
         //vSeeds.emplace_back("dnsseed.bluematt.me", true); // Matt Corallo, only supports x9
         //vSeeds.emplace_back("dnsseed.schleems.dashjr.org", false); // Luke Dashjr
-        //vSeeds.emplace_back("seed.schleemsstats.com", true); // Christian Decker, supports x1 - xf
+        //vSeeds.emplace_back("seed.schleemstats.com", true); // Christian Decker, supports x1 - xf
         //vSeeds.emplace_back("seed.schleems.jonasschnelli.ch", true); // Jonas Schnelli, only supports x1, x5, x9, and xd
         //vSeeds.emplace_back("seed.SLM.petertodd.org", true); // Peter Todd, only supports x1, x5, x9, and xd
 
@@ -174,11 +174,12 @@ public:
 
         bech32_hrp = "bc";
 
-        vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_main, pnSeed6_main + ARRAYLEN(pnSeed6_main));
-
         // No needed bitcoin seeds
         vFixedSeeds.clear();
         vSeeds.clear();
+
+        // Add fixed seeds
+        vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_main, pnSeed6_main + ARRAYLEN(pnSeed6_main));
 
         fDefaultConsistencyChecks = false;
         fRequireStandard = true;
@@ -284,12 +285,13 @@ public:
         assert(consensus.hashGenesisBlock == uint256S("0x00000000b1937dfc2c83f13e428e486ace48dde6d0d5eef264a6020f6c5a1eaf"));
         assert(genesis.hashMerkleRoot == uint256S("0xa712a074953f0c6e2be33382f1965a0fb903beefac2fa327a5143e48593064df"));
 
+        // nodes with support for servicebits filtering should be at the top
+        //vSeeds.emplace_back("testnet-seed.schleems.jonasschnelli.ch", true);
+        //vSeeds.emplace_back("seed.tSLM.petertodd.org", true);
+        //vSeeds.emplace_back("testnet-seed.bluematt.me", false);
+
         vFixedSeeds.clear();
         vSeeds.clear();
-        // nodes with support for servicebits filtering should be at the top
-        vSeeds.emplace_back("testnet-seed.schleems.jonasschnelli.ch", true);
-        vSeeds.emplace_back("seed.tSLM.petertodd.org", true);
-        vSeeds.emplace_back("testnet-seed.bluematt.me", false);
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
